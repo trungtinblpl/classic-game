@@ -1,0 +1,16 @@
+# Ignore Unity generated files
+[Ll]ibrary/
+[Tt]emp/
+Obj/
+Build/
+Builds/
+[Ll]ogs/
+
+# User-specific files
+.DS_Store
+.idea/
+.vscode/
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
