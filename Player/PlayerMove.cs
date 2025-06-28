@@ -93,19 +93,6 @@ public class PlayerMove : MonoBehaviour
         grounded = false;
     }
 
-
-    // void GroundCheck(){
-    //     Collider2D[] colliders = Physics2D.OverlapCircle(groundCheck.position, checkRadius, groundLayer);
-    //     if(colliders.Length > 0){
-    //         foreach(var c in colliders){
-    //             if(c.tag == "MovingPlatform")
-    //                 transform.parent = c.transform;
-    //     } 
-    //     } else {
-    //         transform.parent = null;
-    //     }
-    // }
-
     public bool isGrounded(){
         // RaycastHit2D raycastHit = Physics2D.CapsuleCast(capsuleCollider.bounds.center, 
         // capsuleCollider.bounds.size, 0, Vector2.down, 0.1f, groundLayer);
