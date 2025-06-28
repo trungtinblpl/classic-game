@@ -113,10 +113,10 @@ public class PlayerMove : MonoBehaviour
         RaycastHit2D raycastHit = Physics2D.CapsuleCast(
         capsuleCollider.bounds.center,  
         capsuleCollider.bounds.size,    
-        CapsuleDirection2D.Vertical,   // 🎯 Thay 0 thành CapsuleDirection2D.Vertical hoặc Horizontal
-        0f,                            // 🎯 Thay Vector2.down thành góc xoay (float)
-        Vector2.down,                  // 🎯 Hướng cast (Vector2)
-        0.1f,                          // 🎯 Khoảng cách cast (float)
+        CapsuleDirection2D.Vertical,   //Thay 0 thành CapsuleDirection2D.Vertical hoặc Horizontal
+        0f,                            //Thay Vector2.down thành góc xoay (float)
+        Vector2.down,                  //Hướng cast (Vector2)
+        0.1f,                          //Khoảng cách cast (float)
         groundLayer   
         );
     return raycastHit.collider != null;  
