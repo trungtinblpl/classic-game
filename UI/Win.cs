@@ -18,7 +18,7 @@ public class Win : MonoBehaviour
                 AudioManager audioManager = GameObject.FindGameObjectWithTag("Audio")?.GetComponent<AudioManager>();
                 if (audioManager != null && audioManager.winClip != null)
                 {
-                    audioManager.PlayMusic(audioManager.winClip); // Hoặc PlaySFX nếu chỉ là âm ngắn
+                    audioManager.PlayMusic(audioManager.winClip); 
                 }
             }
 
