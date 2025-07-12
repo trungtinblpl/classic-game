@@ -22,16 +22,20 @@ public class DameText : MonoBehaviour
         MoveText();
     }
 
-    public void MoveText(){
+    public void MoveText()
+    {
         transform.Translate(Vector2.up * speed * Time.deltaTime);
     }
 
-    public IEnumerator Fadeout(){
+    public IEnumerator Fadeout()
+    {
+
         float startAlpha = Text.color.a;
         float rate = 1.0f / lifeTime;
         float progress = 0.0f;
 
-        while (progress < 1.0f){
+        while (progress < 1.0f)
+        {
             Color tmp = Text.color;
             tmp.a = Mathf.Lerp(startAlpha, 0, progress);
 
@@ -42,12 +46,4 @@ public class DameText : MonoBehaviour
         }
         Destroy(gameObject);
     }
-
-    // Hàm này có thể được gọi từ DameTextManager để điều chỉnh icon chí mạng
-    // public void SetCritIcon(Sprite critSprite, bool isCrit) {
-    //     if (critIcon != null) {
-    //         critIcon.sprite = critSprite;  // Cập nhật biểu tượng chí mạng
-    //         critIcon.enabled = isCrit;  // Hiển thị hoặc ẩn biểu tượng dựa vào isCrit
-    //     }
-    // }
 }

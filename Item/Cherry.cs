@@ -1,82 +1,78 @@
-// using System.Collections;
-// using System.Collections.Generic;
-// using UnityEngine;
-
-// public class Cherry : MonoBehaviour
-// {
-//     private void OnTriggerEnter2D(Collider2D other){
-//         if(other.CompareTag("Player")){
-//             int effect = Random.Range(0, 3);
-//             Health playerHealth = other.GetComponent<Health>();
-
-//             switch(effect){
-//                 case 0:
-//                     playerHealth.AddHealthPercent(0.2f);
-//                     Debug.Log("<color=green>🍒 Cherry effect: Heal 20% HP</color>");
-//                     break;
-
-//                 case 1:
-//                     PlayerStats.Instance.BuffDamage(5f);
-//                     Debug.Log("<color=red>🍒 Cherry effect: Damage up for 5s</color>");
-//                     StartCoroutine(RemoveDamageBuff(5f));
-//                     break;
-
-//                 case 2:
-//                     PlayerStats.Instance.BuffCritChance(10f);
-//                     Debug.Log("<color=yellow>🍒 Cherry effect: Crit +10%</color>");
-//                     StartCoroutine(RemoveCritBuff(5f));
-//                     break;      
-//             }
-//             Destroy(gameObject);
-//         }
-//     }
-
-//     private IEnumerator RemoveDamageBuff(float duration){
-//         Debug.Log($"Damage buff started, waiting to remove... at {Time.time}");
-//         yield return new WaitForSeconds(duration);
-//         Debug.Log($"5s passed at {Time.time} — Removing buff now");
-//         PlayerStats.Instance.BuffDamage(-5f);
-//         Debug.Log($"Damage buff removed at {Time.time}, New damage: {PlayerStats.Instance.damage}");
-//     }
-
-//         private IEnumerator RemoveCritBuff(float duration){
-//         Debug.Log("Crit chance buff started, waiting to remove...");
-//         yield return new WaitForSeconds(duration);
-//         PlayerStats.Instance.BuffCritChance(-10f);
-//         Debug.Log("<color=yellow>🍒 Cherry effect: Crit chance buff ended</color>");    }
-// }
-
 using System.Collections;
 using UnityEngine;
 
 public class Cherry : MonoBehaviour
 {
+    private Animator amin;
+    private bool isPickedUp = false;
+    public GameObject textBuffPrefab;
+    private AudioManager audioManager;
+
+    private void Awake()
+    {
+        amin = GetComponent<Animator>();
+        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Player"))
+        if (!isPickedUp && other.CompareTag("Player"))
         {
+            audioManager.PlaySFX(audioManager.itemsClip);
+
+            isPickedUp = true;
+
             int effect = Random.Range(0, 3);
             Health playerHealth = other.GetComponent<Health>();
+
+            Vector3 spawnPos = other.transform.position + new Vector3(0, 1.5f, 0);
+
+            // Text và màu tương ứng
+            string buffText = "";
+            Color buffColor = Color.white;
 
             switch (effect)
             {
                 case 0:
                     playerHealth.AddHealthPercent(0.2f);
-                    Debug.Log("<color=green>🍒 Cherry effect: Heal 20% HP</color>");
+                    buffText = "Healed +20%";
+                    buffColor = Color.green;
+                    // Debug.Log("<color=green>🍒 Cherry effect: Heal 20% HP</color>");
                     break;
 
                 case 1:
                     PlayerStats.Instance.TemporaryBuff(PlayerStats.Instance.BuffDamage, 5f, 5f);
-                    Debug.Log("<color=red>🍒 Cherry effect: Damage up for 5s</color>");
+                    buffText = "Damage Up!";
+                    buffColor = Color.red;
+                    // Debug.Log("<color=red>🍒 Cherry effect: Damage up for 5s</color>");
                     break;
 
                 case 2:
                     PlayerStats.Instance.TemporaryBuff(PlayerStats.Instance.BuffCritChance, 10f, 5f);
-                    Debug.Log("<color=yellow>🍒 Cherry effect: Crit +10% for 5s</color>");
+                    buffText = "Crit +10%";
+                    buffColor = Color.yellow;
+                    // Debug.Log("<color=yellow>🍒 Cherry effect: Crit +10% for 5s</color>");
                     break;
             }
 
-            Destroy(gameObject);
+            amin.SetTrigger("Picked");
+
+            // Vô hiệu hóa collider để không bị nhặt lại
+            GetComponent<Collider2D>().enabled = false;
+
+            // Tạm hoãn hủy object sau animation
+            StartCoroutine(DestroyAfterAnimation());
+
+            if (textBuffPrefab != null)
+            {
+                GameObject textObj = Instantiate(textBuffPrefab, spawnPos, Quaternion.identity);
+                textObj.GetComponent<FloatingText>().SetText(buffText, buffColor);
+            }
         }
+    }
+    private IEnumerator DestroyAfterAnimation()
+    {
+        yield return new WaitForSeconds(0.5f); // Thời gian animation chạy
+        Destroy(gameObject);
     }
 }

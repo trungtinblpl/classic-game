@@ -1,7 +1,10 @@
 using UnityEngine;
+using System.Collections;
+
 
 public class PlayerMove : MonoBehaviour
 {
+
     [Header("Moment Parameters")]
     [SerializeField] private float speed;
     [SerializeField] private float jumpPower;
@@ -10,12 +13,20 @@ public class PlayerMove : MonoBehaviour
     [SerializeField] private float coyoteTime;
     private float coyoteCounter;
 
-    [Header ("Multiple Jumps")]
+    [Header("Multiple Jumps")]
     [SerializeField] private int extraJumps;
     private int jumpCounter;
 
     [Header("Layers")]
     [SerializeField] private LayerMask groundLayer;
+
+    [Header("Dash")]
+    private bool canDash = true;
+    private bool isDashing;
+    private float dashingPower = 24f;
+    private float dashingTime = 0.2f;
+    private float dashingCooldown = 1f;
+    [SerializeField] private TrailRenderer tr;
 
     // private float checkRadius = 0.2f;
     // private Transform groundCheck;
@@ -26,21 +37,31 @@ public class PlayerMove : MonoBehaviour
     private float horizontalInput;
     private bool grounded;
 
-    private void Awake(){
+    private void Awake()
+    {
         body = GetComponent<Rigidbody2D>();
         amin = GetComponent<Animator>();
         // boxCollider = GetComponent<BoxCollider2D>();
         capsuleCollider = GetComponent<CapsuleCollider2D>();
+    }
 
+    private void Attack()
+    {
+        amin.SetTrigger("Attack");
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (isDashing)
+        {
+            return;
+        }
+
         horizontalInput = Input.GetAxis("Horizontal");
         body.velocity = new Vector2(horizontalInput * speed, body.velocity.y);
 
-        if(horizontalInput > 0.01f)
+        if (horizontalInput > 0.01f)
             transform.localScale = Vector3.one;
         else if (horizontalInput < -0.01f)
             transform.localScale = new Vector3(-1, 1, 1);
@@ -54,76 +75,113 @@ public class PlayerMove : MonoBehaviour
         if (Input.GetKeyUp(KeyCode.Space) && body.velocity.y > 0)
             body.velocity = new Vector2(body.velocity.x, body.velocity.y / 2);
 
-        if(isGrounded()){
+        if (isGrounded())
+        {
             coyoteCounter = coyoteTime;
-        } else {
+        }
+        else
+        {
             coyoteCounter -= Time.deltaTime;
             jumpCounter = extraJumps;
         }
 
+        if (Input.GetKeyDown(KeyCode.J) && canAttack())
+        {
+            Attack();
+        }
+
+        if (Input.GetKeyDown(KeyCode.L) && canDash)
+        {
+            StartCoroutine(Dash());
+            amin.SetBool("Dashing", true);
+            AudioManager audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
+            if (audioManager != null && audioManager.dashClip != null)
+            {
+                audioManager.PlaySFX(audioManager.dashClip);
+                // Debug.Log("Dash SFX played.");
+            }
+        }
+
     }
 
-    private void Jump(){
+    private void Jump()
+    {
         if (coyoteCounter <= 0 && jumpCounter <= 0) return;
 
-        if(isGrounded()){
+        if (isGrounded())
+        {
             body.velocity = new Vector2(body.velocity.x, jumpPower);
-        } else {
-            if(coyoteCounter > 0)
+        }
+        else
+        {
+            if (coyoteCounter > 0)
                 body.velocity = new Vector2(body.velocity.x, jumpPower);
-            else {
-                if(jumpCounter > 0){
-                 body.velocity = new Vector2(body.velocity.x, jumpPower);
-                 jumpCounter--;
+            else
+            {
+                if (jumpCounter > 0)
+                {
+                    body.velocity = new Vector2(body.velocity.x, jumpPower);
+                    jumpCounter--;
                 }
             }
-  
+
         }
         amin.SetTrigger("jump");
         grounded = false;
     }
 
-    private void OnCollisionEnter2D(Collision2D collision){
-        if(collision.gameObject.tag == "Ground")
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag == "Ground")
             grounded = true;
     }
 
-    private void OnCollisionExit2D(Collision2D collision){
-    if(collision.gameObject.tag == "Ground")
-        grounded = false;
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag == "Ground")
+            grounded = false;
     }
 
-
-    // void GroundCheck(){
-    //     Collider2D[] colliders = Physics2D.OverlapCircle(groundCheck.position, checkRadius, groundLayer);
-    //     if(colliders.Length > 0){
-    //         foreach(var c in colliders){
-    //             if(c.tag == "MovingPlatform")
-    //                 transform.parent = c.transform;
-    //     } 
-    //     } else {
-    //         transform.parent = null;
-    //     }
-    // }
-
-    public bool isGrounded(){
-        // RaycastHit2D raycastHit = Physics2D.CapsuleCast(capsuleCollider.bounds.center, 
-        // capsuleCollider.bounds.size, 0, Vector2.down, 0.1f, groundLayer);
-        // return raycastHit.collider != null;
+    public bool isGrounded()
+    {
         RaycastHit2D raycastHit = Physics2D.CapsuleCast(
-        capsuleCollider.bounds.center,  
-        capsuleCollider.bounds.size,    
-        CapsuleDirection2D.Vertical,   // 🎯 Thay 0 thành CapsuleDirection2D.Vertical hoặc Horizontal
-        0f,                            // 🎯 Thay Vector2.down thành góc xoay (float)
-        Vector2.down,                  // 🎯 Hướng cast (Vector2)
-        0.1f,                          // 🎯 Khoảng cách cast (float)
-        groundLayer   
+        capsuleCollider.bounds.center,
+        capsuleCollider.bounds.size,
+        CapsuleDirection2D.Vertical,
+        0f,
+        Vector2.down,
+        0.1f,
+        groundLayer
         );
-    return raycastHit.collider != null;  
+        return raycastHit.collider != null;
 
     }
 
-    public bool canAttack(){
-        return horizontalInput == 0;
+    public bool canAttack()
+    {
+        // return horizontalInput == 0;
+        return true;
+    }
+
+    private IEnumerator Dash()
+    {
+        canDash = false;
+        isDashing = true;
+
+        float originalGravity = body.gravityScale;
+        body.gravityScale = 0f;
+        body.velocity = new Vector2(transform.localScale.x * dashingPower, 0f);
+        tr.emitting = true;
+
+        yield return new WaitForSeconds(dashingTime);
+
+        tr.emitting = false;
+        body.gravityScale = originalGravity;
+        isDashing = false;
+
+        amin.SetBool("Dashing", false);
+
+        yield return new WaitForSeconds(dashingCooldown);
+        canDash = true;
     }
 }

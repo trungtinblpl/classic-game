@@ -17,7 +17,7 @@ public class skillAttack : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetMouseButton(0) && cooldownTimer > attackCooldown && playerMove.canAttack() && Time.timeScale > 0)
+        if (Input.GetKeyDown(KeyCode.K) && cooldownTimer > attackCooldown && playerMove.canAttack() && Time.timeScale > 0)
             Attack();
 
         cooldownTimer += Time.deltaTime;
@@ -25,6 +25,13 @@ public class skillAttack : MonoBehaviour
 
     private void Attack()
     {
+        AudioManager audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
+        if (audioManager != null && audioManager.moonClip != null)
+        {
+            audioManager.PlaySFX(audioManager.moonClip);
+            // Debug.Log("moon SFX played.");
+        }
+
         amin.SetTrigger("SkillAttack");
         cooldownTimer = 0;
 

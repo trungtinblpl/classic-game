@@ -32,11 +32,19 @@ public class Projectile : MonoBehaviour
         boxCollider.enabled = false;
         amin.SetTrigger("mooLight_Explode");
 
+        AudioManager audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
+        if (audioManager != null && audioManager.kenClip != null)
+        {
+            audioManager.PlaySFX(audioManager.kenClip);
+            // Debug.Log("Ken SFX played.");
+        }
+
         if (collision.tag == "Monter")
         {
-            // Lấy sát thương từ PlayerStats
-            float damageToDeal = PlayerStats.Instance.CaculateDame();  // Lấy giá trị sát thương đã tính từ PlayerStats
-            collision.GetComponent<Health>()?.TakeDamage(damageToDeal); // Gây sát thương cho quái vật
+            var (damageToDeal, isCrit) = PlayerStats.Instance.CaculateDame();
+            Vector3 center = collision.GetComponent<SpriteRenderer>().bounds.center;
+            DameTextManager.Myinstance.CreateText(center, ((int)damageToDeal).ToString(), ColorType.Dame, isCrit);
+            collision.GetComponent<Health>()?.TakeDamage(damageToDeal);
         }
 
         Invoke(nameof(Deactivate), 0.5f);

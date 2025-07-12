@@ -6,12 +6,12 @@ using UnityEngine.SceneManagement;
 public class DeathZone : MonoBehaviour
 {
     public GameObject gameOverUI;
-    
+
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Player")) // Kiểm tra nếu đối tượng là nhân vật
+        if (other.CompareTag("Player"))
         {
-            Debug.Log("Game Over!");
+            // Debug.Log("Game Over!");
             GameOver(); // Gọi hàm Game Over
         }
     }
@@ -24,10 +24,17 @@ public class DeathZone : MonoBehaviour
         }
         else
         {
-            Debug.LogError("gameOverUI chưa được gán!");
+            // Debug.LogError("gameOverUI chưa được gán!");
         }
 
-        // Ngừng thời gian nếu cần
-        Time.timeScale = 0f; 
+        AudioManager audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
+        if (audioManager != null)
+        {
+            audioManager.PlayerLoseMusic();
+            // Debug.Log("loseClip SFX played.");
+        }
+
+        // Ngừng thời gian
+        Time.timeScale = 0f;
     }
 }

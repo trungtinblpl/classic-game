@@ -6,12 +6,11 @@ using UnityEngine.UI;
 public class SelectArow : MonoBehaviour
 {
     [SerializeField] private RectTransform[] options;
-    // [SerializeField] private AudioClip changeSound;
-    // [SerializeField] private AudioClip interactSound;
     private RectTransform rect;
     private int currentPosition;
 
-    private void Awake(){
+    private void Awake()
+    {
         rect = GetComponent<RectTransform>();
     }
     private void OnEnable()
@@ -20,7 +19,8 @@ public class SelectArow : MonoBehaviour
         ChangePosition(0);
     }
 
-    private void Update(){
+    private void Update()
+    {
         //Change the position of the selection arrow
         if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))
             ChangePosition(-1);
@@ -32,11 +32,9 @@ public class SelectArow : MonoBehaviour
             Interact();
     }
 
-     private void ChangePosition(int _change){
+    private void ChangePosition(int _change)
+    {
         currentPosition += _change;
-
-        // if (_change != 0)
-        //     SoundManager.instance.PlaySound(changeSound);
 
         if (currentPosition < 0)
             currentPosition = options.Length - 1;
@@ -46,12 +44,14 @@ public class SelectArow : MonoBehaviour
         AssignPosition();
     }
 
-    private void AssignPosition(){
+    private void AssignPosition()
+    {
         //Assign the Y position of the current option to the rect (basically moving it up and down)
         rect.position = new Vector3(rect.position.x, options[currentPosition].position.y);
     }
 
-    private void Interact(){
+    private void Interact()
+    {
         // SoundManager.instance.PlaySound(interactSound);
 
         //Access the button component on each option and call its function

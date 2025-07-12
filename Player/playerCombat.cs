@@ -4,45 +4,58 @@ using UnityEngine;
 
 public class playerCombat : MonoBehaviour
 {
-
     public Animator animator;
 
     public Transform attackPoint;
     public LayerMask enemyLayers;
-
     public float attackRange = 0.5f;
-    public int attackDamage = 10;
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        if(Input.GetKeyDown(KeyCode.F)){
+        if (Input.GetKeyDown(KeyCode.J))
+        {
             Attack();
         }
     }
 
-    void Attack(){
-        //play an attack animation
+    private void Attack()
+    {
         animator.SetTrigger("Attack");
 
+        bool hitSuccessful = false;
 
-        //Detect monter attack
-        Collider2D[] hitMonters = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayers);
+        // Detect enemies
+        Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayers);
 
-
-        //dame
-        foreach (Collider2D enemy in hitMonters)
+        foreach (Collider2D enemy in hitEnemies)
         {
-            if (enemy != null && enemy.GetComponent<Monter>() != null) // Kiểm tra null trước khi gọi hàm
+            if (enemy != null && enemy.GetComponent<Health>() != null)
             {
-                enemy.GetComponent<Monter>().TakeDamage(attackDamage);
+                hitSuccessful = true;
+
+                var (damageToDeal, isCrit) = PlayerStats.Instance.CaculateDame();
+
+                Vector3 enemyCenter = enemy.GetComponent<SpriteRenderer>().bounds.center;
+                DameTextManager.Myinstance.CreateText(enemyCenter, ((int)damageToDeal).ToString(), ColorType.Dame, isCrit);
+
+                enemy.GetComponent<Health>().TakeDamage(damageToDeal);
             }
         }
 
+        if (hitSuccessful)
+        {
+            AudioManager audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
+            if (audioManager != null && audioManager.kenClip != null)
+            {
+                audioManager.PlaySFX(audioManager.kenClip);
+                // Debug.Log("Ken SFX played.");
+            }
+        }
     }
 
-    void OnDrawGizmosSelected(){
-        if(attackPoint == null)
+    private void OnDrawGizmosSelected()
+    {
+        if (attackPoint == null)
             return;
 
         Gizmos.DrawWireSphere(attackPoint.position, attackRange);

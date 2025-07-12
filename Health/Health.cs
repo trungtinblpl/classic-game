@@ -28,6 +28,9 @@ public class Health : MonoBehaviour
     public float hideHealthBarDelay = 2f;
     public GameObject healthbarPrefab;
 
+    [Header("Soud")]
+    [SerializeField] private AudioClip hurtClip;
+
     public bool isPlayer = false;
 
     private void Awake()
@@ -36,7 +39,7 @@ public class Health : MonoBehaviour
         amin = GetComponent<Animator>();
         spriteRend = GetComponent<SpriteRenderer>();
         boxCollider = GetComponent<BoxCollider2D>();
-        isPlayer = true;
+        // isPlayer = true;
     }
 
     public void AssignHealthbar(GameObject hb)
@@ -46,27 +49,15 @@ public class Health : MonoBehaviour
     }
 
 
-   public void TakeDamage(float _damage)
+    public void TakeDamage(float _damage)
     {
+        // Debug.Log("TakeDamage called: " + _damage);
+
         if (invulnerable || dead) return;
-        Debug.Log($"TakeDamage: {_damage}");
 
-        Vector3 center = GetComponent<SpriteRenderer>().bounds.center;
-
-        bool isCrit = false;
-        if (isPlayer)
-        {
-            isCrit = DameTextManager.Myinstance.IsCriticalHit();
-            if (isCrit)
-            {
-                _damage *= 2;
-            }
-        }
-
-        // // Tạo thông báo sát thương (bao gồm cả chí mạng nếu có)
-        DameTextManager.Myinstance.CreateText(center, _damage.ToString(), ColorType.Dame, isCrit);
-
+        // Debug.Log($"Before damage: {currentHealth}/{startingHealth}, invulnerable: {invulnerable}");
         currentHealth = Mathf.Clamp(currentHealth - _damage, 0, startingHealth);
+        // Debug.Log($"After damage: {currentHealth}/{startingHealth}");
 
         if (healthbarInstance != null)
         {
@@ -106,7 +97,7 @@ public class Health : MonoBehaviour
             hideHealthBarCoroutine = StartCoroutine(HideHealthBarAfterDelay(hideHealthBarDelay));
         }
 
-        // Xử lý animation và chết
+        // Xử lý animation hurt và die
         if (currentHealth > 0)
         {
             amin.SetTrigger("hurt");
@@ -127,8 +118,31 @@ public class Health : MonoBehaviour
                 if (GetComponent<Monter>() != null)
                     GetComponent<Monter>().enabled = false;
 
+                Transform trigger = transform.Find("EnemyTrigger");
+                if (trigger != null)
+                    trigger.GetComponent<Collider2D>().enabled = false;
+
+                if (isPlayer)
+                {
+                    UIManager uiManager = FindObjectOfType<UIManager>();
+                    if (uiManager != null)
+                    {
+                        uiManager.GameOver();
+                    }
+                }
+
                 Invoke("Deactivate", 1f);
                 dead = true;
+
+                if (!isPlayer)
+                {
+                    AudioManager audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
+                    if (audioManager != null && audioManager.enemyDeathClip != null)
+                    {
+                        audioManager.PlaySFX(audioManager.enemyDeathClip);
+                        // Debug.Log("Die SFX enemyDeathClip.");
+                    }
+                }
             }
         }
     }

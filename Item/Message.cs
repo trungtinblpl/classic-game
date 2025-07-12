@@ -13,7 +13,7 @@ public class Message : MonoBehaviour
         // Đảm bảo messageText đã được gán trước khi sử dụng
         if (messageText == null)
         {
-            Debug.LogError("Not eat");
+            // Debug.LogError("Not eat");
             return;
         }
         // Ẩn thông báo khi bắt đầu
@@ -32,6 +32,6 @@ public class Message : MonoBehaviour
         messageText.text = "";
     }
 
-    
+
 
 }

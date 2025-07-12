@@ -9,6 +9,7 @@ public class EnemyProjectile : Enamy_Monter
     private BoxCollider2D coll;
 
     private bool hit;
+    // private float direction;
 
     private void Awake()
     {
@@ -23,6 +24,7 @@ public class EnemyProjectile : Enamy_Monter
         gameObject.SetActive(true);
         coll.enabled = true;
     }
+
     private void Update()
     {
         if (hit) return;
@@ -31,7 +33,9 @@ public class EnemyProjectile : Enamy_Monter
 
         lifetime += Time.deltaTime;
         if (lifetime > resetTime)
+        {
             gameObject.SetActive(false);
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -40,11 +44,22 @@ public class EnemyProjectile : Enamy_Monter
         base.OnTriggerEnter2D(collision); //Execute logic from parent script first
         coll.enabled = false;
 
-        if (anim != null){
+        if (anim != null)
+        {
+            // Debug.Log("Animator found. Triggering 'exploreShoot'.");
             anim.SetTrigger("exploreShoot"); //When the object is a fireball explode it
         }
-        else {
+        else
+        {
+            // Debug.Log("No animator found. Deactivating gameObject.");
             gameObject.SetActive(false); //When this hits any object deactivate arrow
+        }
+
+        AudioManager audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
+        if (audioManager != null && audioManager.kenClip != null)
+        {
+            audioManager.PlaySFX(audioManager.kenClip);
+            // Debug.Log("Ken SFX played.");
         }
     }
     private void Deactivate()
