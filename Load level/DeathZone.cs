@@ -22,10 +22,10 @@ public class DeathZone : MonoBehaviour
         {
             gameOverUI.SetActive(true);
         }
-        else
-        {
-            // Debug.LogError("gameOverUI chưa được gán!");
-        }
+        // else
+        // {
+        //     // Debug.LogError("gameOverUI chưa được gán!");
+        // }
 
         AudioManager audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
         if (audioManager != null)
