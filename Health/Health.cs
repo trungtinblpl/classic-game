@@ -168,7 +168,10 @@ public class Health : MonoBehaviour
 
     private IEnumerator Invunerability()
     {
-        Physics2D.IgnoreLayerCollision(10, 11, true);
+        int playerLayer = LayerMask.NameToLayer("Player");
+        int montersLayer = LayerMask.NameToLayer("Monters");
+
+        Physics2D.IgnoreLayerCollision(playerLayer, montersLayer, true);
 
         for (int i = 0; i < numberOfflashes; i++)
         {
@@ -181,9 +184,8 @@ public class Health : MonoBehaviour
         invulnerable = true;
         yield return new WaitForSeconds(1f); // hoặc thời gian bất kỳ
 
-        Physics2D.IgnoreLayerCollision(10, 11, false);
+        Physics2D.IgnoreLayerCollision(playerLayer, montersLayer, false);
         invulnerable = false;
-
     }
 
     private void Deactivate()
