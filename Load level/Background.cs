@@ -25,7 +25,7 @@ public class Background : MonoBehaviour
 
     void UpdateBackground(Vector3 direction)
     {
-        sideBg.position = midBg.position + direction;
+        sideBg.position = midBg.position + direction * length;
         Transform temp = midBg;
         midBg = sideBg;
         sideBg = temp;
